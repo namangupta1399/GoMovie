@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input, List, Card, Modal, Row, Col, Tag, Statistic, Spin } from "antd";
 import { LikeOutlined } from "@ant-design/icons";
 import axios from "axios";
@@ -13,14 +13,32 @@ const MainContent = () => {
   const [activeMovie, setActiveMovie] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [movieLoading, setMovieLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    setLoading(true);
+
+    axios
+      .get(
+        `https://api.themoviedb.org/3/movie/popular?api_key=${process.env.REACT_APP_API_KEY}&language=en-US&page=1`
+      )
+      .then((res) => {
+        setMovies(res.data.results);
+      })
+      .catch((err) => {
+        throw err;
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+
+    // return () => {
+    //   cleanup;
+    // };
+  }, []);
 
   const showModal = () => {
     setIsModalVisible(true);
-  };
-
-  const handleOk = () => {
-    setIsModalVisible(false);
   };
 
   const handleCancel = () => {
@@ -34,17 +52,18 @@ const MainContent = () => {
         `https://api.themoviedb.org/3/search/movie?api_key=${process.env.REACT_APP_API_KEY}&language=en-US&query=${query}&page=1`
       )
       .then((res) => {
-        console.log(res.data.results);
+        // console.log(res.data.results);
         setMovies(res.data.results);
-        setLoading(false);
-        if(res.data.results.length <= 0) {
-            setMessage("No movie found...")
+        if (res.data.results.length <= 0) {
+          setMessage("No movie found...");
         }
       })
       .catch((err) => {
-        setLoading(false);
-        setMessage(err.response.data.errors)
+        setMessage(err.response.data.errors);
         throw err;
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -55,7 +74,7 @@ const MainContent = () => {
         `https://api.themoviedb.org/3/movie/${id}?api_key=${process.env.REACT_APP_API_KEY}&language=en-US`
       )
       .then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         setMovieLoading(false);
         setActiveMovie(res.data);
       })
@@ -65,9 +84,9 @@ const MainContent = () => {
   };
 
   return (
-    <div>
+    <div style={{maxWidth: '1200px', margin: '0 auto'}}>
       <Search
-        placeholder="input search text"
+        placeholder="Enter movie name..."
         enterButton="Search"
         size="large"
         loading={loading}
@@ -76,7 +95,9 @@ const MainContent = () => {
           setQuery(e.target.value);
         }}
         onSearch={getMovies}
+        style={{display: 'block', margin: '1rem auto', width: '80%'}}
       />
+      { query === "" ? <h1>Popular Movies</h1> : <h1>{`${movies.length} Movies Found`}</h1> }
       {movies.length > 0 ? (
         <Spin spinning={loading}>
           <List
@@ -84,9 +105,9 @@ const MainContent = () => {
               gutter: 16,
               xs: 1,
               sm: 2,
-              md: 4,
-              lg: 4,
-              xl: 6,
+              md: 2,
+              lg: 3,
+              xl: 4,
               xxl: 3,
             }}
             dataSource={movies}
@@ -100,7 +121,7 @@ const MainContent = () => {
               >
                 <Card
                   hoverable
-                  style={{ width: 240, height: 450 }}
+                  style={{ width: 240,  margin: '0 auto', textAlign: 'center' }}
                   cover={
                     <img
                       alt={item.title}
@@ -113,16 +134,17 @@ const MainContent = () => {
                     />
                   }
                 >
-                  <Meta title={item.title} />
+                  <Meta title={item.title} description={item.release_date.substr(0, 4)} />
                 </Card>
               </List.Item>
             )}
           />
         </Spin>
-      ) : <h5>{message}</h5>}
+      ) : (
+        <h5>{message}</h5>
+      )}
       {activeMovie && (
         <Modal
-          //   title="Basic Modal"
           visible={isModalVisible}
           onCancel={handleCancel}
           footer={null}
@@ -131,7 +153,7 @@ const MainContent = () => {
         >
           <Spin spinning={movieLoading}>
             <Row gutter={[16, 16]}>
-              <Col span={8}>
+                <Col xs={24} md={8}>
                 <img
                   src={
                     activeMovie.poster_path
@@ -142,13 +164,13 @@ const MainContent = () => {
                   style={{ width: "100%" }}
                 />
               </Col>
-              <Col span={16}>
+              <Col xs={24} md={16}>
                 <h1 style={{ marginBottom: "5px" }}>{activeMovie.title}</h1>
                 <h2>{activeMovie.tagline}</h2>
                 <h2>{activeMovie.release_date.substr(0, 4)}</h2>
                 <div style={{ marginBottom: "1rem" }}>
                   {activeMovie.genres.map((genre, index) => (
-                    <Tag color="default">{genre.name}</Tag>
+                    <Tag key={index} color="default">{genre.name}</Tag>
                   ))}
                 </div>
                 <p>{activeMovie.overview}</p>

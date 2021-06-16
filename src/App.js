@@ -1,5 +1,5 @@
 import "./App.css";
-import { Layout, Menu } from "antd";
+import { Layout } from "antd";
 import MainContent from "./components/MainContent";
 
 const { Header, Footer, Content } = Layout;
@@ -13,7 +13,7 @@ function App() {
       <Content>
         <MainContent />
       </Content>
-      <Footer>Footer</Footer>
+      <Footer style={{textAlign: "center", backgroundColor: '##fafafa'}}>Developed by <a href="https://github.com/namangupta1399" target="_blank" rel="noreferrer">Naman Gupta</a></Footer>
     </Layout>
   );
 }
