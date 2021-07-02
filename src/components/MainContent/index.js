@@ -88,7 +88,7 @@ const MainContent = () => {
         throw err;
       });
   };
-
+  
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
       <Search
@@ -117,36 +117,35 @@ const MainContent = () => {
               xxl: 3,
             }}
             dataSource={movies}
-            renderItem={(item, index) => (
-              <List.Item
-                key={index}
-                onClick={() => {
-                  getMovie(item.id);
-                  showModal();
-                }}
-              >
-                <Card
-                  hoverable
-                  style={{ width: 240, margin: "0 auto", textAlign: "center" }}
-                  cover={
-                    <img
-                      alt={item.title}
-                      src={
-                        item.poster_path
-                          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-                          : "https://i.stack.imgur.com/y9DpT.jpg"
-                      }
-                      style={{ height: "350px" }}
-                    />
-                  }
+            renderItem={(item, index) => {
+              return (
+                <List.Item
+                  key={index}
+                  onClick={() => {
+                    getMovie(item.id);
+                    showModal();
+                  }}
                 >
-                  <Meta
-                    title={item.title}
-                    description={item.release_date.substr(0, 4)}
-                  />
-                </Card>
-              </List.Item>
-            )}
+                  <Card
+                    hoverable
+                    style={{ width: 240, margin: "0 auto", textAlign: "center" }}
+                    cover={
+                      <img
+                        alt={item.title}
+                        src={
+                          item.poster_path
+                            ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+                            : "https://i.stack.imgur.com/y9DpT.jpg"
+                        }
+                        style={{ height: "350px" }}
+                      />
+                    }
+                  >
+                    <Meta title={item.title} description={item.release_date ? item.release_date.substring(0, 4): ""} />
+                  </Card>
+                </List.Item>
+              )
+            }}
           />
         </Spin>
       ) : (
@@ -176,7 +175,7 @@ const MainContent = () => {
               <Col xs={24} md={16}>
                 <h1 style={{ marginBottom: "5px" }}>{activeMovie.title}</h1>
                 <h2>{activeMovie.tagline}</h2>
-                <h2>{activeMovie.release_date.substr(0, 4)}</h2>
+                <h2>{activeMovie.release_date ? activeMovie.release_date.substring(0, 4) : ""}</h2>
                 <div style={{ marginBottom: "1rem" }}>
                   {activeMovie.genres.map((genre, index) => (
                     <Tag key={index} color="default">
